@@ -10,7 +10,7 @@ export default defineConfig({
       "/student/schedule-open": {
         target: "https://portal.psuti.ru",
         changeOrigin: true,
-        secure: true,
+        secure: false,
         rewrite: (path) => path,
       },
     },
