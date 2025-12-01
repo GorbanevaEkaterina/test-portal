@@ -1,133 +1,91 @@
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const API_BASE = '/student/schedule-open'
+const API_BASE = "/student/schedule-open";
 
 export function useScheduleIndex() {
-  const data = ref(null)
-  const loading = ref(false)
-  const error = ref(null)
+  const data = ref(null);
+  const loading = ref(false);
+  const error = ref(null);
 
   const fetchIndex = async () => {
-    loading.value = true
-    error.value = null
+    loading.value = true;
+    error.value = null;
     try {
       const res = await fetch(`${API_BASE}/api-index`, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      })
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
       if (!res.ok) {
         if (res.status === 402) {
-          const err = await res.json()
-          throw new Error(err.error?.message || 'Invalid params')
+          const err = await res.json();
+          throw new Error(err.error?.message || "Invalid params");
         }
-        throw new Error(`HTTP ${res.status}`)
+        throw new Error(`HTTP ${res.status}`);
       }
-      data.value = await res.json()
+      data.value = await res.json();
     } catch (err) {
-      error.value = err.message
+      error.value = err.message;
     } finally {
-      loading.value = false
+      loading.value = false;
     }
-  }
+  };
 
-  return { data, loading, error, fetchIndex }
+  return { data, loading, error, fetchIndex };
 }
 
-export function useScheduleList(type, value, dateStart = null, dateEnd = null) {
-  const schedule = ref(null)
-  const loading = ref(false)
-  const error = ref(null)
+export function useScheduleList() {
+  const schedule = ref(null);
+  const loading = ref(false);
+  const error = ref(null);
 
-  const fetchList = async () => {
-    if (!['group', 'teacher', 'classroom'].includes(type)) {
-      error.value = 'Invalid type. Must be "group", "teacher", or "classroom".'
-      return
+  const fetchList = async ({
+    type,
+    value,
+    dateStart = null,
+    dateEnd = null,
+  }) => {
+    if (!["group", "teacher", "classroom"].includes(type)) {
+      error.value =
+        "Неверный тип расписания. Допустимые значения: group, teacher, classroom.";
+      return;
     }
     if (!value) {
-      error.value = 'Value is required.'
-      return
+      error.value =
+        "Значение (название группы / ФИО преподавателя) обязательно.";
+      return;
     }
 
-    loading.value = true
-    error.value = null
+    loading.value = true;
+    error.value = null;
 
-    const params = new URLSearchParams()
-    params.append('type', type)
-    params.append('value', value)
-    if (dateStart) params.append('dateStart', dateStart)
-    if (dateEnd) params.append('dateEnd', dateEnd)
+    const params = new URLSearchParams();
+    params.append("type", type);
+    params.append("value", value);
+    if (dateStart) params.append("dateStart", dateStart);
+    if (dateEnd) params.append("dateEnd", dateEnd);
 
     try {
-      const url = `${API_BASE}/api-list?${params.toString()}`
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      })
+      const url = `${API_BASE}/api-list?${params.toString()}`;
+      const response = await fetch(url, {
+        method: "GET",
+        headers: { "Content-Type": "application/json" },
+      });
 
-      if (!res.ok) {
-        if (res.status === 402) {
-          const err = await res.json()
-          throw new Error(err.error?.message || 'Invalid params')
+      if (!response.ok) {
+        if (response.status === 402) {
+          const err = await response.json();
+          throw new Error(err.error?.message || "Неверные параметры запроса");
         }
-        throw new Error(`HTTP ${res.status}`)
+        throw new Error(`Ошибка сервера: ${response.status}`);
       }
 
-      schedule.value = await res.json()
+      schedule.value = await response.json();
     } catch (err) {
-      error.value = err.message
+      error.value = err.message || "Не удалось загрузить расписание";
     } finally {
-      loading.value = false
+      loading.value = false;
     }
-  }
+  };
 
-  return { schedule, loading, error, fetchList }
-}
-
-export function useScheduleCompact(type, value, dateStart = null) {
-  const schedule = ref(null)
-  const loading = ref(false)
-  const error = ref(null)
-
-  const fetchCompact = async () => {
-    if (!['group', 'teacher', 'classroom'].includes(type)) {
-      error.value = 'Invalid type. Must be "group", "teacher", or "classroom".'
-      return
-    }
-    if (!value) {
-      error.value = 'Value is required.'
-      return
-    }
-
-    loading.value = true
-    error.value = null
-
-    const params = new URLSearchParams()
-    params.append('type', type)
-    params.append('value', value)
-    if (dateStart) params.append('dateStart', dateStart)
-
-    try {
-      const url = `${API_BASE}/api-compact?${params.toString()}`
-      const res = await fetch(url, {
-        method: 'GET',
-        headers: { 'Content-Type': 'application/json' }
-      })
-
-      if (!res.ok) {
-        if (res.status === 402) {
-          const err = await res.json()
-          throw new Error(err.error?.message || 'Invalid params')
-        }
-        throw new Error(`HTTP ${res.status}`)
-      }
-
-      schedule.value = await res.json()
-    } catch (err) {
-      error.value = err.message
-    } finally {
-      loading.value = false
-    }
-  }
-
-  return { schedule, loading, error, fetchCompact }
+  return { schedule, loading, error, fetchList };
 }

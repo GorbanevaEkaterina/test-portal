@@ -1,8 +1,6 @@
 <template>
   <div class="lesson-card">
-    <div class="time">
-      {{ time_start }}–{{ time_end }}
-    </div>
+    <div class="time">{{ time_start }}–{{ time_end }}</div>
     <div class="discipline">
       <div v-for="(d, idx) in discipline" :key="idx">
         {{ d }}<span v-if="idx < discipline.length - 1">,</span>
@@ -19,7 +17,10 @@
         {{ room }}<span v-if="idx < classroom.length - 1">,</span>
       </span>
     </div>
-    <div v-else-if="discipline.length > 0 && !isPhysicalCulture" class="classroom warning">
+    <div
+      v-else-if="discipline.length > 0 && !isPhysicalCulture()"
+      class="classroom warning"
+    >
       Дистанционно
     </div>
     <div v-if="group.length > 0" class="group">
@@ -32,7 +33,6 @@
       >
         {{ g }}<span v-if="idx < group.length - 1">,</span>
       </span>
-      <span v-if="group.length > 0"> группа</span>
     </div>
     <div v-if="teacher.length > 0" class="teacher">
       <span
@@ -59,40 +59,40 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter } from "vue-router";
 
 const props = defineProps({
   time_start: { type: String, required: true },
   time_end: { type: String, required: true },
   discipline: { type: Array, default: () => [] },
-  load: { type: String, default: '' },
+  load: { type: String, default: "" },
   classroom: { type: Array, default: () => [] },
   group: { type: Array, default: () => [] },
   teacher: { type: Array, default: () => [] },
-  department: { type: String, default: '' },
-  course: { type: String, default: '' },
-  statement_id: { type: String, default: '' },
-  statement_open: { type: String, default: '' },
+  department: { type: String, default: "" },
+  course: { type: String, default: "" },
+  statement_id: { type: String, default: "" },
+  statement_open: { type: String, default: "" },
   weekStart: { type: String, required: true },
-  weekEnd: { type: String, required: true }
-})
+  weekEnd: { type: String, required: true },
+});
 
-const router = useRouter()
+const router = useRouter();
 
 const goToSchedule = (type, value) => {
   router.push({
-    path: '/schedule',
-    query: { type, value, dateStart: props.weekStart, dateEnd: props.weekEnd }
-  })
-}
+    path: "/schedule",
+    query: { type, value, dateStart: props.weekStart, dateEnd: props.weekEnd },
+  });
+};
 
-const isPhysicalCulture = computed(() => {
-  return props.discipline.some(d =>
-    d.includes('Физическая культура и спорт') ||
-    d.includes('Элективные дисциплины по физической культуре и спорту')
-  )
-})
+const isPhysicalCulture = () => {
+  return props.discipline?.some?.(
+    (d) =>
+      d?.includes?.("Физическая культура и спорт") ||
+      d?.includes?.("Элективные дисциплины по физической культуре и спорту")
+  );
+};
 </script>
 
 <style scoped>

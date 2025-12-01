@@ -9,17 +9,22 @@
       </div>
       <p class="mt-2">Загрузка расписания...</p>
     </div>
-    <div v-else-if="!schedule?.items" class="alert alert-info">
+    <div
+      v-else-if="
+        !schedule || !schedule.items || Object.keys(schedule.items).length === 0
+      "
+      class="alert alert-info"
+    >
       Нет данных для отображения
     </div>
     <div v-else>
       <div class="schedule-header mb-4 p-3 border rounded bg-light">
         <h3>
           Расписание
-          <span v-if="props.type === 'group'">группы</span>
-          <span v-else-if="props.type === 'teacher'">преподавателя</span>
-          <span v-else-if="props.type === 'classroom'">аудитории</span>
-          <b>{{ props.value }}</b>
+          <span v-if="type === 'group'">группы</span>
+          <span v-else-if="type === 'teacher'">преподавателя</span>
+          <span v-else-if="type === 'classroom'">аудитории</span>
+          <b>{{ value }}</b>
         </h3>
         <p class="mb-1">
           Неделя № <b>{{ schedule.weekNumber }}</b>
@@ -37,62 +42,48 @@
         :week-number="schedule.weekNumber"
         :odd="schedule.odd"
       />
-
-      <WeekSchedule :schedule="schedule" />
+      <WeekSchedule v-if="schedule && schedule.items" :schedule="schedule" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import WeekNavigator from './WeekNavigator.vue'
-import WeekSchedule from './WeekSchedule.vue'
-import { useScheduleList } from '../composables/useScheduleApi'
+import { ref, watch, onMounted } from "vue";
+import WeekNavigator from "./WeekNavigator.vue";
+import WeekSchedule from "./WeekSchedule.vue";
+import { useScheduleList } from "../composables/useScheduleApi";
 
 const props = defineProps({
   type: {
     type: String,
     required: true,
-    validator: (v) => ['group', 'teacher', 'classroom'].includes(v)
+    validator: (v) => ["group", "teacher", "classroom"].includes(v),
   },
   value: { type: String, required: true },
-  dateStart: { type: String, default: '' },
-  dateEnd: { type: String, default: '' }
-})
+  dateStart: { type: String, default: "" },
+  dateEnd: { type: String, default: "" },
+});
 
-const localWeekStart = ref(props.dateStart || '')
-const localWeekEnd = ref(props.dateEnd || '')
+const localWeekStart = ref(props.dateStart || "");
+const localWeekEnd = ref(props.dateEnd || "");
+const { fetchList, schedule, loading, error } = useScheduleList();
 
-
-const schedule = ref(null)
-const loading = ref(false)
-const error = ref(null)
-
-
-const loadSchedule = async (type, value, start, end) => {
-  loading.value = true
-  error.value = null
-
-  const { fetchList, schedule: data, error: err, loading: load } = useScheduleList(type, value, start, end)
-  try {
-    await fetchList()
-    schedule.value = data.value
-  } catch (e) {
-    error.value = e.message || 'Ошибка загрузки'
-  } finally {
-    loading.value = false
-  }
-}
-
+const loadSchedule = async () => {
+  await fetchList({
+    type: props.type,
+    value: props.value,
+    dateStart: localWeekStart.value || undefined,
+    dateEnd: localWeekEnd.value || undefined,
+  });
+};
 
 onMounted(() => {
-  loadSchedule(props.type, props.value, props.dateStart, props.dateEnd)
-})
+  loadSchedule();
+});
 
-
-watch([localWeekStart, localWeekEnd], ([newStart, newEnd]) => {
-  loadSchedule(props.type, props.value, newStart, newEnd)
-})
+watch([localWeekStart, localWeekEnd], () => {
+  loadSchedule();
+});
 </script>
 
 <style scoped>
