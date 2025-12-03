@@ -7,15 +7,15 @@ export const useScheduleStore = defineStore('schedule', {
     schedule: null,
     loading: false,
     error: null,
-    currentParams: null, // опционально для отслеживания кэша
+    currentParams: null, 
   }),
 
   actions: {
     async fetchSchedule({ type, value, dateStart, dateEnd, mode }) {
-      // Опционально: избегать дублирования запросов
+     
       const params = { type, value, dateStart, dateEnd, mode }
       if (JSON.stringify(params) === JSON.stringify(this.currentParams)) {
-        return // уже загружено
+        return 
       }
 
       this.loading = true
