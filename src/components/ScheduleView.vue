@@ -88,10 +88,10 @@ const props = defineProps({
   dateEnd: { type: String, default: "" },
   mode: { type: String, default: "full", validator: v => ["full", "compact"].includes(v) }
 });
-console.log("pro")
+
 const localWeekStart = ref(props.dateStart || "");
 const localWeekEnd = ref(props.dateEnd || "");
-const mode = ref(props.mode); // ← локальное состояние
+const mode = ref(props.mode); 
 
 const { fetchList, schedule, loading, error } = useScheduleList();
 

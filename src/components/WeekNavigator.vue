@@ -83,7 +83,7 @@ import Datepicker from 'vue3-datepicker'
 import ru from 'date-fns/locale/ru'
 import { format, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns'
 
-// Пропсы
+
 const props = defineProps({
   weekStart: { type: String, required: true },
   weekEnd: { type: String, required: true },
@@ -93,18 +93,18 @@ const props = defineProps({
 
 const emit = defineEmits(['update:weekStart', 'update:weekEnd'])
 
-// Локализация
+
 const locale = ru
 
-// Реактивные данные
+
 const localWeekStart = ref(props.weekStart)
 const localWeekEnd = ref(props.weekEnd)
 
-// Внутренние значения для календарей
+
 const internalStartDate = ref(null)
 const internalEndDate = ref(null)
 
-// Синхронизация с пропсами
+
 watch(() => props.weekStart, (val) => {
   if (val) {
     const [d, m, y] = val.split('.').map(Number)
@@ -118,17 +118,16 @@ watch(() => props.weekEnd, (val) => {
   }
 })
 
-// Константы
+
 const minDate = new Date(2020, 0, 1)
 const maxDate = new Date(2030, 0, 1)
 
-// Формат отображения
+
 const formatDate = (date) => {
   if (!date || isNaN(date.getTime())) return ''
   return format(date, 'dd.MM.yyyy')
 }
 
-// Вспомогательные функции
 const getMonday = (date) => {
   const day = date.getDay()
   const diff = date.getDate() - (day === 0 ? -6 : day - 1)
@@ -141,7 +140,7 @@ const getSunday = (monday) => {
   return addDays(monday, 6)
 }
 
-// Ограничения календаря (разрешить только понедельник для "Начало", воскресенье для "Конец")
+
 const disabledDatesStart = {
   customPredictor: (date) => date.getDay() !== 1 // Только понедельник
 }
@@ -149,7 +148,7 @@ const disabledDatesEnd = {
   customPredictor: (date) => date.getDay() !== 0 // Только воскресенье
 }
 
-// Обработчики выбора даты
+
 const onStartDateSelect = (date) => {
   console.log("1111 ", date);
   if (!date) return
@@ -165,14 +164,14 @@ const onStartDateSelect = (date) => {
   emit('update:weekStart', start)
   emit('update:weekEnd', end)
 
-  // Синхронизируем внутреннее значение конца недели
+  
   internalEndDate.value = sunday
 }
 
 const onEndDateSelect = (date) => {
   if (!date) return
 
-  // Если выбрано воскресенье — вычисляем понедельник этой недели
+  
   const sunday = date
   const monday = subDays(sunday, 6)
 
@@ -184,14 +183,14 @@ const onEndDateSelect = (date) => {
   emit('update:weekStart', start)
   emit('update:weekEnd', end)
 
-  // Синхронизируем внутреннее значение начала недели
+ 
   internalStartDate.value = monday
 }
 
-// Переключение недель
+
 const switchWeek = (next) => {
   const currentMonday = parseDate(localWeekStart.value)
-  if (!currentMonday) return // 🔒 Защита
+  if (!currentMonday) return 
 
   const newMonday = next ? addDays(currentMonday, 7) : subDays(currentMonday, 7)
   const newSunday = addDays(newMonday, 6)
@@ -205,7 +204,7 @@ const switchWeek = (next) => {
   emit('update:weekEnd', end)
 }
 
-// Вспомогательная функция парсинга даты
+
 const parseDate = (str) => {
   if (!str || typeof str !== 'string') return null
   const parts = str.split('.')
