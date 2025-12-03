@@ -1,6 +1,7 @@
 <template>
   <div class="week-navigator mb-4 p-3 border rounded">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+
      
       <div class="btn-group" role="group">
         <button
@@ -11,6 +12,45 @@
         >
           ←
         </button>
+        <div class="d-flex gap-2">
+        
+        <div class="input-group">
+          <Datepicker
+            v-model="internalStartDate"
+            :enable-time="false"
+            :locale="ru"
+            :format="formatDate"
+            :max-date="maxDate"
+            :min-date="minDate"
+            :disabled-dates="disabledDatesStart"
+            @update:model-value="onStartDateSelect"
+            :input-class="'form-control form-control-sm'"
+            placeholder="Начало"
+          />
+          <span class="input-group-text">
+            <i class="fa fa-calendar"></i>
+          </span>
+        </div>
+
+        
+        <div class="input-group">
+          <Datepicker
+            v-model="internalEndDate"
+            :enable-time="false"
+            :locale="ru"
+            :format="formatDate"
+            :max-date="maxDate"
+            :min-date="minDate"
+            :disabled-dates="disabledDatesEnd"
+            @update:model-value="onEndDateSelect"
+            :input-class="'form-control form-control-sm'"
+            placeholder="Конец"
+          />
+          <span class="input-group-text">
+            <i class="fa fa-calendar"></i>
+          </span>
+        </div>
+      </div>
         <button
           @click="switchWeek(true)"
           class="btn btn-outline-secondary"
@@ -30,102 +70,150 @@
         <small>{{ localWeekStart }} – {{ localWeekEnd }}</small>
       </div>
 
+     
       
-      <div class="d-flex gap-2">
-        <input
-          v-model="localWeekStart"
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Начало"
-          @change="onDateChange"
-        />
-        <input
-          v-model="localWeekEnd"
-          type="text"
-          class="form-control form-control-sm"
-          placeholder="Конец"
-          readonly
-        />
-      </div>
+
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
+import Datepicker from 'vue3-datepicker'
+import ru from 'date-fns/locale/ru'
+import { format, addDays, subDays, startOfWeek, endOfWeek } from 'date-fns'
 
+// Пропсы
 const props = defineProps({
-  weekStart: { type: String, required: true }, // "01.12.2025"
-  weekEnd: { type: String, required: true },   // "07.12.2025"
+  weekStart: { type: String, required: true },
+  weekEnd: { type: String, required: true },
   weekNumber: { type: Number, default: 0 },
   odd: { type: Number, validator: v => [0, 1, 2].includes(v), default: 0 }
 })
 
 const emit = defineEmits(['update:weekStart', 'update:weekEnd'])
 
+// Локализация
+const locale = ru
+
+// Реактивные данные
 const localWeekStart = ref(props.weekStart)
 const localWeekEnd = ref(props.weekEnd)
 
+// Внутренние значения для календарей
+const internalStartDate = ref(null)
+const internalEndDate = ref(null)
 
+// Синхронизация с пропсами
 watch(() => props.weekStart, (val) => {
-  localWeekStart.value = val
+  if (val) {
+    const [d, m, y] = val.split('.').map(Number)
+    internalStartDate.value = new Date(y, m - 1, d)
+  }
 })
 watch(() => props.weekEnd, (val) => {
-  localWeekEnd.value = val
+  if (val) {
+    const [d, m, y] = val.split('.').map(Number)
+    internalEndDate.value = new Date(y, m - 1, d)
+  }
 })
 
+// Константы
+const minDate = new Date(2020, 0, 1)
+const maxDate = new Date(2030, 0, 1)
 
+// Формат отображения
+const formatDate = (date) => {
+  if (!date || isNaN(date.getTime())) return ''
+  return format(date, 'dd.MM.yyyy')
+}
+
+// Вспомогательные функции
 const getMonday = (date) => {
-  const day = date.getDay() 
+  const day = date.getDay()
   const diff = date.getDate() - (day === 0 ? -6 : day - 1)
   const monday = new Date(date)
   monday.setDate(diff)
-  monday.setHours(0, 0, 0, 0)
   return monday
 }
 
-
-const formatDate = (date) => {
-  const d = String(date.getDate()).padStart(2, '0')
-  const m = String(date.getMonth() + 1).padStart(2, '0')
-  const y = date.getFullYear()
-  return `${d}.${m}.${y}`
+const getSunday = (monday) => {
+  return addDays(monday, 6)
 }
 
-
-const isValidDateStr = (str) => {
-  return /^\d{2}\.\d{2}\.\d{4}$/.test(str)
+// Ограничения календаря (разрешить только понедельник для "Начало", воскресенье для "Конец")
+const disabledDatesStart = {
+  customPredictor: (date) => date.getDay() !== 1 // Только понедельник
+}
+const disabledDatesEnd = {
+  customPredictor: (date) => date.getDay() !== 0 // Только воскресенье
 }
 
+// Обработчики выбора даты
+const onStartDateSelect = (date) => {
+  console.log("1111 ", date);
+  if (!date) return
 
-const switchWeek = (next) => {
-  const [d, m, y] = localWeekStart.value.split('.').map(Number)
-  const currentMonday = new Date(y, m - 1, d)
-  currentMonday.setDate(currentMonday.getDate() + (next ? 7 : -7))
+  const monday = getMonday(date)
+  const sunday = getSunday(monday)
 
-  const newStart = formatDate(currentMonday)
-  const newEnd = formatDate(new Date(currentMonday.getFullYear(), currentMonday.getMonth(), currentMonday.getDate() + 6))
+  const start = formatDate(monday)
+  const end = formatDate(sunday)
 
-  updateDates(newStart, newEnd)
-}
-
-const onDateChange = () => {
-  if (isValidDateStr(localWeekStart.value)) {
-    const [d, m, y] = localWeekStart.value.split('.').map(Number)
-    const inputDate = new Date(y, m - 1, d)
-    const monday = getMonday(inputDate)
-    const sunday = new Date(monday)
-    sunday.setDate(monday.getDate() + 6)
-
-    updateDates(formatDate(monday), formatDate(sunday))
-  }
-}
-
-const updateDates = (start, end) => {
   localWeekStart.value = start
   localWeekEnd.value = end
   emit('update:weekStart', start)
   emit('update:weekEnd', end)
+
+  // Синхронизируем внутреннее значение конца недели
+  internalEndDate.value = sunday
+}
+
+const onEndDateSelect = (date) => {
+  if (!date) return
+
+  // Если выбрано воскресенье — вычисляем понедельник этой недели
+  const sunday = date
+  const monday = subDays(sunday, 6)
+
+  const start = formatDate(monday)
+  const end = formatDate(sunday)
+
+  localWeekStart.value = start
+  localWeekEnd.value = end
+  emit('update:weekStart', start)
+  emit('update:weekEnd', end)
+
+  // Синхронизируем внутреннее значение начала недели
+  internalStartDate.value = monday
+}
+
+// Переключение недель
+const switchWeek = (next) => {
+  const currentMonday = parseDate(localWeekStart.value)
+  if (!currentMonday) return // 🔒 Защита
+
+  const newMonday = next ? addDays(currentMonday, 7) : subDays(currentMonday, 7)
+  const newSunday = addDays(newMonday, 6)
+
+  const start = formatDate(newMonday)
+  const end = formatDate(newSunday)
+
+  localWeekStart.value = start
+  localWeekEnd.value = end
+  emit('update:weekStart', start)
+  emit('update:weekEnd', end)
+}
+
+// Вспомогательная функция парсинга даты
+const parseDate = (str) => {
+  if (!str || typeof str !== 'string') return null
+  const parts = str.split('.')
+  if (parts.length !== 3) return null
+  const [d, m, y] = parts.map(Number)
+  if (isNaN(d) || isNaN(m) || isNaN(y)) return null
+  const date = new Date(y, m - 1, d)
+  return isNaN(date.getTime()) ? null : date
 }
 </script>
 
@@ -133,4 +221,30 @@ const updateDates = (start, end) => {
 .week-navigator {
   background-color: #f8f9fa;
 }
+
+.input-group {
+  display: flex;
+  align-items: stretch;
+}
+
+.input-group .form-control {
+  border-radius: 0;
+}
+
+.input-group .input-group-text {
+  border-radius: 0;
+  padding: 0.375rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #495057;
+  text-align: center;
+  background-color: #e9ecef;
+  border: 1px solid #ced4da;
+  border-left: 0;
+}
+
+.input-group .input-group-text i {
+  margin: 0;
+}
 </style>
+
