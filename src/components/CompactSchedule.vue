@@ -138,25 +138,27 @@ const setScheduleType = (view) => {
   })
 }
 
-// const switchWeek = (next) => {
-//   const [d, m, y] = props.schedule.week_start.split('.').map(Number)
-//   const date = new Date(y, m - 1, d)
-//   date.setDate(date.getDate() + (next ? 14 : -14)) // +14 дней — переход к следующему блоку из 2 недель
+const switchWeek = (next) => {
+  console.log("uuii");
 
-//   const newStart = date.toLocaleDateString('ru-RU').replace(/\./g, '.')
-//   date.setDate(date.getDate() + 6)
-//   const newEnd = date.toLocaleDateString('ru-RU').replace(/\./g, '.')
+  const [d, m, y] = props.schedule.week_start.split('.').map(Number)
+  const date = new Date(y, m - 1, d)
+  date.setDate(date.getDate() + (next ? 14 : -14)) // +14 дней — переход к следующему блоку из 2 недель
 
-//   router.push({
-//     name: 'ScheduleCompact',
-//     query: {
-//       type: props.type,
-//       value: props.value,
-//       dateStart: newStart,
-//       dateEnd: newEnd
-//     }
-//   })
-// }
+  const newStart = date.toLocaleDateString('ru-RU').replace(/\./g, '.')
+  date.setDate(date.getDate() + 6)
+  const newEnd = date.toLocaleDateString('ru-RU').replace(/\./g, '.')
+
+  router.push({
+    name: 'ScheduleCompact',
+    query: {
+      type: props.type,
+      value: props.value,
+      dateStart: newStart,
+      dateEnd: newEnd
+    }
+  })
+}
 </script>
 
 <style scoped>

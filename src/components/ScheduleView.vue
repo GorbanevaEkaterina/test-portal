@@ -61,21 +61,35 @@
           </a>
         </div>
       </div>
+      
+      <!-- WeekNavigator для обоих режимов -->
       <WeekNavigator
-        v-if="mode"
         v-model:week-start="localWeekStart"
         v-model:week-end="localWeekEnd"
         :week-number="schedule.weekNumber"
         :odd="schedule.odd"
+        :mode="mode"
       />
-      <WeekSchedule v-if="mode === 'full'" :schedule="schedule" />
-      <CompactSchedule v-else :schedule="schedule" />
+      
+      <!-- Передаём type и value в дочерние компоненты -->
+      <WeekSchedule 
+        v-if="mode === 'full'" 
+        :schedule="schedule" 
+        :type="type"
+        :value="value"
+      />
+      <CompactSchedule 
+        v-else 
+        :schedule="schedule" 
+        :type="type"
+        :value="value"
+      />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from "vue";
+import { ref, watch, onMounted, nextTick } from "vue";
 import WeekNavigator from "./WeekNavigator.vue";
 import WeekSchedule from "./WeekSchedule.vue";
 import CompactSchedule from "./CompactSchedule.vue";
@@ -89,39 +103,105 @@ const props = defineProps({
   mode: { type: String, default: "full", validator: v => ["full", "compact"].includes(v) }
 });
 
-const scheduleType =ref( localStorage.getItem("scheduleType") || "full");
-
+// Используем переданный mode или из localStorage
+const mode = ref( localStorage.getItem("scheduleType") || "full");
 
 const localWeekStart = ref(props.dateStart || "");
 const localWeekEnd = ref(props.dateEnd || "");
-const mode = ref(localStorage.getItem("scheduleType") || "full"); 
 
 const { fetchList, schedule, loading, error } = useScheduleList();
 
 const loadSchedule = async () => {
-  await fetchList({
+  console.log('loadSchedule called with:', {
     type: props.type,
     value: props.value,
-    dateStart: mode.value === "full" ? localWeekStart.value || undefined : props.dateStart || undefined,
-    dateEnd: mode.value === "full" ? localWeekEnd.value || undefined : undefined,
-    mode: mode.value
+    mode: mode.value,
+    dateStart: localWeekStart.value,
+    dateEnd: localWeekEnd.value
   });
+  
+  const params = {
+    type: props.type,
+    value: props.value,
+    mode: mode.value
+  };
+  
+  // Добавляем даты только если они есть
+  if (localWeekStart.value) {
+    params.dateStart = localWeekStart.value;
+  }
+  
+  if (localWeekEnd.value) {
+    params.dateEnd = localWeekEnd.value;
+  }
+  
+  console.log('Fetching with params:', params);
+  await fetchList(params);
 };
 
+// При монтировании компонента загружаем расписание
 onMounted(() => {
+  console.log('Component mounted, loading schedule...');
   loadSchedule();
 });
 
+// Следим за изменениями дат в WeekNavigator
 watch([localWeekStart, localWeekEnd], () => {
-  if (mode.value === "full") {
-    loadSchedule();
-  }
+  console.log('Dates changed, reloading schedule...');
+  console.log('localWeekStart:', localWeekStart.value);
+  console.log('localWeekEnd:', localWeekEnd.value);
+  loadSchedule();
+}, { deep: true });
+
+// Обновляем schedule при изменении mode
+watch(mode, (newMode, oldMode) => {
+  console.log(`Mode changed from ${oldMode} to ${newMode}`);
+  
+  // Сохраняем режим в localStorage
+  localStorage.setItem("scheduleType", newMode);
+  
+  // Ждём следующего тика, чтобы WeekNavigator успел обновиться
+  nextTick(() => {
+    // WeekNavigator сам обновит даты при изменении режима
+    // и вызовет watch для localWeekStart/localWeekEnd,
+    // который запустит loadSchedule
+    console.log('Mode change processed, waiting for date updates...');
+  });
 });
+
+// Если schedule загружен, синхронизируем даты
+watch(() => schedule.value, (newSchedule) => {
+  if (newSchedule && newSchedule.week_start && newSchedule.week_end) {
+    console.log('Schedule loaded, updating dates:', {
+      week_start: newSchedule.week_start,
+      week_end: newSchedule.week_end
+    });
+    
+    // Обновляем только если даты изменились
+    if (localWeekStart.value !== newSchedule.week_start) {
+      localWeekStart.value = newSchedule.week_start;
+    }
+    
+    if (localWeekEnd.value !== newSchedule.week_end) {
+      localWeekEnd.value = newSchedule.week_end;
+    }
+  }
+}, { deep: true });
 
 const setView = (view) => {
-  localStorage.setItem("scheduleType", view);
+  console.log('Setting view to:', view);
   mode.value = view;
-  loadSchedule();
+};
+
+// Вспомогательная функция для парсинга дат
+const parseDate = (str) => {
+  if (!str || typeof str !== 'string') return null;
+  const parts = str.split('.');
+  if (parts.length !== 3) return null;
+  const [d, m, y] = parts.map(Number);
+  if (isNaN(d) || isNaN(m) || isNaN(y)) return null;
+  const date = new Date(y, m - 1, d);
+  return isNaN(date.getTime()) ? null : date;
 };
 </script>
 
@@ -129,5 +209,44 @@ const setView = (view) => {
 .schedule-wrapper {
   margin-top: 20px;
 }
-</style>
 
+.schedule-header {
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+}
+
+.alert {
+  margin: 20px 0;
+}
+
+.text-decoration-none:hover {
+  text-decoration: underline !important;
+}
+
+.btn-outline-primary {
+  border-color: #0d6efd;
+  color: #0d6efd;
+}
+
+.btn-outline-primary:hover {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.text-info {
+  color: #0dcaf0 !important;
+}
+
+.text-success {
+  color: #198754 !important;
+}
+
+.text-muted {
+  color: #6c757d !important;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+}
+</style>
