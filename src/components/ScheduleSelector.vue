@@ -192,7 +192,7 @@ const matchSearch = (item) => {
 };
 
 const goToSchedule = (type, value) => {
-  router.push({ name: "ScheduleView", query: { type, value } });
+  router.push({ name: "ScheduleFull", query: { type, value } });
 };
 
 onMounted(() => {

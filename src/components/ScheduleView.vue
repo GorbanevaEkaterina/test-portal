@@ -89,9 +89,12 @@ const props = defineProps({
   mode: { type: String, default: "full", validator: v => ["full", "compact"].includes(v) }
 });
 
+const scheduleType =ref( localStorage.getItem("scheduleType") || "full");
+
+
 const localWeekStart = ref(props.dateStart || "");
 const localWeekEnd = ref(props.dateEnd || "");
-const mode = ref(props.mode); 
+const mode = ref(localStorage.getItem("scheduleType") || "full"); 
 
 const { fetchList, schedule, loading, error } = useScheduleList();
 
@@ -116,6 +119,7 @@ watch([localWeekStart, localWeekEnd], () => {
 });
 
 const setView = (view) => {
+  localStorage.setItem("scheduleType", view);
   mode.value = view;
   loadSchedule();
 };
