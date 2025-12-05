@@ -1,9 +1,5 @@
 <template>
-  <select
-    id="department-select"
-    v-model="localDepartment"
-    class="form-control local-t"
-  >
+  <select id="department-select" v-model="localDepartment" class="form-control local-t">
     <option value="">Выберите кафедру</option>
     <option v-for="dept in departments" :key="dept" :value="dept">
       {{ dept }}

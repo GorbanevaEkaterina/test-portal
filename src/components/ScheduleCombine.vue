@@ -3,10 +3,9 @@
     <header>
       <h2 class="text-center mb-4">Расписание</h2>
     </header>
-
     <div class="schedule-head mb-4">
       <div class="row">
-        
+
         <div class="col-12 col-lg-8">
           <div class="dataSet">
             <div class="datasub">
@@ -18,12 +17,8 @@
                   </span>
                 </div>
                 <div class="dp__main dp__theme_light" style="flex: 1; margin: 0 10px;">
-                  <input
-                    class="form-control text-center"
-                    type="text"
-                    :value="`${dateRange.start} - ${dateRange.end}`"
-                    readonly
-                  />
+                  <input class="form-control text-center" type="text" :value="`${dateRange.start} - ${dateRange.end}`"
+                    readonly />
                 </div>
                 <div class="local-arrow" @click="switchWeek(true)">
                   <span class="l-btn-arrow input-group-text">
@@ -34,59 +29,34 @@
             </div>
           </div>
         </div>
-
-      
         <div class="col-12 col-lg-4 mt-3 mt-lg-0">
           <div class="d-flex align-items-center mb-2">
             <label class="form-label me-3" style="width: 180px;">Обе недели сразу:</label>
             <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                v-model="filters.both"
-                @change="onFilterChange"
-              />
+              <input class="form-check-input" type="checkbox" v-model="filters.both" @change="onFilterChange" />
             </div>
           </div>
           <div class="d-flex align-items-center mb-2">
             <label class="form-label me-3" style="width: 180px;">Чётная неделя:</label>
             <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                v-model="filters.even"
-                @change="onFilterChange"
-              />
+              <input class="form-check-input" type="checkbox" v-model="filters.even" @change="onFilterChange" />
             </div>
           </div>
           <div class="d-flex align-items-center">
             <label class="form-label me-3" style="width: 180px;">Нечётная неделя:</label>
             <div class="form-check form-switch">
-              <input
-                class="form-check-input"
-                type="checkbox"
-                v-model="filters.odd"
-                @change="onFilterChange"
-              />
+              <input class="form-check-input" type="checkbox" v-model="filters.odd" @change="onFilterChange" />
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    
     <div class="text-center mb-4">
-      <button
-        id="free-exp"
-        class="btn btn-outline-primary"
-        style="width: 100%; font-size: 0.9rem;"
-        @click="showSchedule"
-      >
+      <button id="free-exp" class="btn btn-outline-primary" style="width: 100%; font-size: 0.9rem;"
+        @click="showSchedule">
         Отобразить расписание
       </button>
     </div>
-
-    
     <!-- <div class="local-box-col-select">
       <div class="dropdown addOption local-add-opt" @click="openAddMenu">
         <div class="plus-simbol">+</div>
@@ -111,7 +81,7 @@
         </div>
       </div>
     </div> -->
-    
+
   </div>
 </template>
 
@@ -202,22 +172,27 @@ const showSchedule = () => {
 .schedule-combine {
   padding-top: 20px;
 }
+
 .dataSet {
   background: #f8f9fa;
   padding: 15px;
   border-radius: 5px;
 }
+
 .box-data {
   display: flex;
   align-items: center;
 }
+
 .local-arrow {
   cursor: pointer;
 }
+
 .dropdown {
   position: relative;
   display: inline-block;
 }
+
 .dropdown-content {
   position: absolute;
   background: white;
@@ -225,15 +200,18 @@ const showSchedule = () => {
   z-index: 10;
   width: 200px;
 }
+
 .dropdown-content a {
   display: block;
   padding: 8px 12px;
   text-decoration: none;
   color: black;
 }
+
 .dropdown-content a:hover {
   background: #f0f0f0;
 }
+
 .plus-simbol {
   display: inline-block;
   width: 30px;

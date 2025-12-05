@@ -43,7 +43,7 @@ export function useScheduleList() {
     value,
     dateStart = null,
     dateEnd = null,
-    mode = 'full' | 'compact', 
+    mode = "full" | "compact",
   }) => {
     if (!["group", "teacher", "classroom"].includes(type)) {
       error.value =
@@ -59,14 +59,14 @@ export function useScheduleList() {
     loading.value = true;
     error.value = null;
 
-    const endpoint = mode === 'compact' ? 'api-compact' : 'api-list';
+    const endpoint = mode === "compact" ? "api-compact" : "api-list";
 
     const params = new URLSearchParams();
     params.append("type", type);
     params.append("value", value);
     if (dateStart) params.append("dateStart", dateStart);
-    
-    if (dateEnd && mode !== 'compact') params.append("dateEnd", dateEnd);
+
+    if (dateEnd && mode !== "compact") params.append("dateEnd", dateEnd);
 
     try {
       const url = `${API_BASE}/${endpoint}?${params.toString()}`;

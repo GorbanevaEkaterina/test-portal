@@ -2,57 +2,32 @@
   <div class="week-navigator mb-4 p-3 border rounded">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
       <div class="btn-group" role="group">
-        <button
-          @click="switchWeek(false)"
-          class="btn btn-outline-secondary btn-sm"
-          :title="prevButtonTitle"
-          type="button"
-        >
+        <button @click="switchWeek(false)" class="btn btn-outline-secondary btn-sm" :title="prevButtonTitle"
+          type="button">
           ←
         </button>
         <div class="d-flex gap-2">
-          <div class="input-group" v-if="mode ">
-            <Datepicker
-              v-model="internalStartDate"
-              :enable-time="false"
-              :locale="ru"
-              :format="formatDate"
-              :max-date="maxDate"
-              :min-date="minDate"
-              :disabled-dates="disabledDatesStart"
-              @update:model-value="onStartDateSelect"
-              :input-class="'form-control form-control-sm'"
-              placeholder="Начало"
-            />
+          <div class="input-group" v-if="mode">
+            <Datepicker v-model="internalStartDate" :enable-time="false" :locale="ru" :format="formatDate"
+              :max-date="maxDate" :min-date="minDate" :disabled-dates="disabledDatesStart"
+              @update:model-value="onStartDateSelect" :input-class="'form-control form-control-sm'"
+              placeholder="Начало" />
             <span class="input-group-text">
               <i class="fa fa-calendar"></i>
             </span>
           </div>
 
           <div class="input-group" v-if="mode">
-            <Datepicker 
-              v-model="internalEndDate"
-              :enable-time="false"
-              :locale="ru"
-              :format="formatDate"
-              :max-date="maxDate"
-              :min-date="minDate"
-              :disabled-dates="disabledDatesEnd"
-              @update:model-value="onEndDateSelect"
-              :input-class="'form-control form-control-sm'"
-              placeholder="Конец"
-            />
+            <Datepicker v-model="internalEndDate" :enable-time="false" :locale="ru" :format="formatDate"
+              :max-date="maxDate" :min-date="minDate" :disabled-dates="disabledDatesEnd"
+              @update:model-value="onEndDateSelect" :input-class="'form-control form-control-sm'" placeholder="Конец" />
             <span class="input-group-text">
               <i class="fa fa-calendar"></i>
             </span>
           </div>
         </div>
-        <button
-          @click="switchWeek(true)"
-          class="btn btn-outline-secondary btn-sm"
-          :title="nextButtonTitle"
-          type="button"
-        >
+        <button @click="switchWeek(true)" class="btn btn-outline-secondary btn-sm" :title="nextButtonTitle"
+          type="button">
           →
         </button>
       </div>
@@ -88,12 +63,9 @@ const props = defineProps({
 const emit = defineEmits(['update:weekStart', 'update:weekEnd'])
 
 const locale = ru
-
-// Функция для получения текущей недели
 const getCurrentWeekDates = () => {
   const today = new Date()
-  
-  // Получаем понедельник текущей недели
+
   const getMonday = (date) => {
     const day = date.getDay()
     const diff = date.getDate() - (day === 0 ? -6 : day - 1)
@@ -102,20 +74,20 @@ const getCurrentWeekDates = () => {
     monday.setHours(0, 0, 0, 0)
     return monday
   }
-  
-  // Для компактного режима возвращаем 2 недели
+
+
   const getEndDate = (monday, isCompact = false) => {
-    return addDays(monday, isCompact ? 13 : 6) // 2 недели или 1 неделя
+    return addDays(monday, isCompact ? 13 : 6)
   }
-  
+
   const formatDate = (date) => {
     if (!date || isNaN(date.getTime())) return ''
     return format(date, 'dd.MM.yyyy')
   }
-  
+
   const monday = getMonday(today)
   const endDate = getEndDate(monday, props.mode === 'compact')
-  
+
   return {
     start: formatDate(monday),
     end: formatDate(endDate),
@@ -136,14 +108,12 @@ const parseDate = (str) => {
 
 const currentWeek = getCurrentWeekDates()
 
-// Используем переданные пропсы или текущую неделю по умолчанию
 const localWeekStart = ref(props.weekStart || currentWeek.start)
 const localWeekEnd = ref(props.weekEnd || currentWeek.end)
 
 const internalStartDate = ref(props.weekStart ? parseDate(props.weekStart) : currentWeek.startDate)
 const internalEndDate = ref(props.weekEnd ? parseDate(props.weekEnd) : currentWeek.endDate)
 
-// Если пропсы не переданы, инициализируем текущей неделей
 onMounted(() => {
   if (!props.weekStart || !props.weekEnd) {
     emit('update:weekStart', currentWeek.start)
@@ -168,18 +138,15 @@ const getMonday = (date) => {
   return monday
 }
 
-// Важное изменение: при переключении режимов сохраняем понедельник
 const adjustDatesForModeChange = (newMode, oldMode, currentStartDate) => {
   if (!currentStartDate) return { start: '', end: '' }
-  
+
   const monday = getMonday(currentStartDate)
-  
+
   if (newMode === 'compact' && oldMode === 'full') {
-    // При переходе с полного на компактный:
-    // Берём понедельник за неделю ДО текущего понедельника
     const compactMonday = subDays(monday, 7)
     const compactEnd = addDays(compactMonday, 13)
-    
+
     return {
       start: formatDate(compactMonday),
       end: formatDate(compactEnd),
@@ -187,11 +154,10 @@ const adjustDatesForModeChange = (newMode, oldMode, currentStartDate) => {
       endDate: compactEnd
     }
   } else if (newMode === 'full' && oldMode === 'compact') {
-    // При переходе с компактного на полный:
-    // Берем понедельник из второй недели компактного расписания
+
     const fullMonday = addDays(monday, 7)
     const fullEnd = addDays(fullMonday, 6)
-    
+
     return {
       start: formatDate(fullMonday),
       end: formatDate(fullEnd),
@@ -199,8 +165,7 @@ const adjustDatesForModeChange = (newMode, oldMode, currentStartDate) => {
       endDate: fullEnd
     }
   }
-  
-  // Если режим не менялся или менялся на тот же
+
   const endDate = addDays(monday, newMode === 'compact' ? 13 : 6)
   return {
     start: formatDate(monday),
@@ -211,16 +176,15 @@ const adjustDatesForModeChange = (newMode, oldMode, currentStartDate) => {
 }
 
 const getEndDate = (monday) => {
-  // Для компактного режима возвращаем 2 недели, для полного - 1 неделю
   return addDays(monday, props.mode === 'compact' ? 13 : 6)
 }
 
 const disabledDatesStart = {
-  customPredictor: (date) => date.getDay() !== 1 // Только понедельник
+  customPredictor: (date) => date.getDay() !== 1
 }
 
 const disabledDatesEnd = {
-  customPredictor: (date) => date.getDay() !== 0 // Только воскресенье
+  customPredictor: (date) => date.getDay() !== 0
 }
 
 const onStartDateSelect = (date) => {
@@ -243,7 +207,6 @@ const onStartDateSelect = (date) => {
 const onEndDateSelect = (date) => {
   if (!date) return
 
-  // Для компактного режима вычисляем понедельник от конца периода
   const endDate = date
   const daysToSubtract = props.mode === 'compact' ? 13 : 6
   const monday = subDays(endDate, daysToSubtract)
@@ -263,10 +226,9 @@ const switchWeek = (next) => {
   const currentMonday = parseDate(localWeekStart.value)
   if (!currentMonday) return
 
-  // Определяем количество дней для сдвига
   const daysToShift = props.mode === 'compact' ? 14 : 7
   const shiftDirection = next ? daysToShift : -daysToShift
-  
+
   const newMonday = addDays(currentMonday, shiftDirection)
   const newEndDate = getEndDate(newMonday)
 
@@ -279,20 +241,19 @@ const switchWeek = (next) => {
   emit('update:weekEnd', end)
 }
 
-// Вычисляемые свойства для заголовков кнопок
 const prevButtonTitle = computed(() => {
-  return props.mode === 'compact' 
-    ? 'Предыдущие 2 недели' 
+  return props.mode === 'compact'
+    ? 'Предыдущие 2 недели'
     : 'Предыдущая неделя'
 })
 
 const nextButtonTitle = computed(() => {
-  return props.mode === 'compact' 
-    ? 'Следующие 2 недели' 
+  return props.mode === 'compact'
+    ? 'Следующие 2 недели'
     : 'Следующая неделя'
 })
 
-// Наблюдаем за изменениями пропсов
+
 watch(() => props.weekStart, (val) => {
   if (val) {
     const date = parseDate(val)
@@ -313,23 +274,20 @@ watch(() => props.weekEnd, (val) => {
   }
 })
 
-// При изменении режима пересчитываем даты
+
 watch(() => props.mode, (newMode, oldMode) => {
-  console.log(`Mode changed in WeekNavigator from ${oldMode} to ${newMode}`)
-  
-  // Ждём следующего тика, чтобы получить актуальные значения
+  (`Mconsole.logode changed in WeekNavigator from ${oldMode} to ${newMode}`)
+
   nextTick(() => {
     const currentStartDate = parseDate(localWeekStart.value)
     if (currentStartDate) {
       const adjustedDates = adjustDatesForModeChange(newMode, oldMode, currentStartDate)
-      
-      console.log('Adjusted dates for mode change:', adjustedDates)
-      
+
       localWeekStart.value = adjustedDates.start
       localWeekEnd.value = adjustedDates.end
       internalStartDate.value = adjustedDates.startDate
       internalEndDate.value = adjustedDates.endDate
-      
+
       emit('update:weekStart', adjustedDates.start)
       emit('update:weekEnd', adjustedDates.end)
     }
@@ -347,7 +305,7 @@ watch(() => props.mode, (newMode, oldMode) => {
   display: flex;
   align-items: stretch;
   width: auto;
-  
+
 }
 
 .input-group .form-control {

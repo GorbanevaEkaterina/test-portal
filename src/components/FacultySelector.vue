@@ -1,15 +1,7 @@
 <template>
-  <select
-    id="faculty-select"
-    v-model="localFaculty"
-    class="form-control local-t"
-  >
+  <select id="faculty-select" v-model="localFaculty" class="form-control local-t">
     <option value="">Выберите факультет</option>
-    <option
-      v-for="item in sortedFaculties"
-      :key="item.value"
-      :value="item.value"
-    >
+    <option v-for="item in sortedFaculties" :key="item.value" :value="item.value">
       {{ item.label }}
     </option>
   </select>

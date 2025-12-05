@@ -1,10 +1,6 @@
 <template>
   <div class="schedule-body">
-    <div
-      v-for="(dayLessons, dayName) in schedule.items"
-      :key="dayName"
-      class="day-container"
-    >
+    <div v-for="(dayLessons, dayName) in schedule.items" :key="dayName" class="day-container">
       <h4 class="day-name">{{ dayName }}</h4>
       <div class="table-responsive">
         <table class="table table-schedule">
@@ -18,16 +14,12 @@
             </tr>
           </thead>
           <tbody>
-            <tr
-              v-for="(lesson, time) in dayLessons"
-              :key="time"
-              :class="{
-                warning:
-                  !lesson.classroom?.length &&
-                  lesson.discipline?.length &&
-                  !isPhysicalCulture(lesson),
-              }"
-            >
+            <tr v-for="(lesson, time) in dayLessons" :key="time" :class="{
+              warning:
+                !lesson.classroom?.length &&
+                lesson.discipline?.length &&
+                !isPhysicalCulture(lesson),
+            }">
               <td class="table-schedule-hours">
                 {{ lesson.time_start }}–{{ lesson.time_end }}
               </td>
@@ -45,42 +37,27 @@
               </td>
               <td class="table-schedule-classroom">
                 <template v-if="lesson.classroom?.length">
-                  <a
-                    v-for="(room, idx) in lesson.classroom"
-                    :key="idx"
-                    :href="buildLink('classroom', room)"
-                  >
+                  <a v-for="(room, idx) in lesson.classroom" :key="idx" :href="buildLink('classroom', room)">
                     {{ room }}
                     <span v-if="idx < lesson.classroom.length - 1">,</span>
                   </a>
                 </template>
-                <span
-                  v-else-if="
-                    lesson.discipline?.length && !isPhysicalCulture(lesson)
-                  "
-                  class="remote-warning"
-                >
+                <span v-else-if="
+                  lesson.discipline?.length && !isPhysicalCulture(lesson)
+                " class="remote-warning">
                   Дистанционно
                 </span>
                 <span v-else>—</span>
               </td>
               <td class="table-schedule-group">
                 <span v-if="lesson.course">{{ lesson.course }} курс <br></span>
-                <a
-                  v-for="(group, idx) in lesson.group"
-                  :key="idx"
-                  :href="buildLink('group', group)"
-                >
+                <a v-for="(group, idx) in lesson.group" :key="idx" :href="buildLink('group', group)">
                   {{ group }}
                   <span v-if="idx < lesson.group.length - 1">,<br></span>
                 </a>
               </td>
               <td class="table-schedule-teacher">
-                <a
-                  v-for="(teacher, idx) in lesson.teacher"
-                  :key="idx"
-                  :href="buildLink('teacher', teacher)"
-                >
+                <a v-for="(teacher, idx) in lesson.teacher" :key="idx" :href="buildLink('teacher', teacher)">
                   {{ teacher }}
                 </a>
                 <span v-if="!lesson.teacher?.length">—</span>
@@ -119,29 +96,36 @@ const buildLink = (type, value) => {
 .schedule-body {
   margin-top: 20px;
 }
+
 .day-container {
   margin-bottom: 30px;
 }
+
 .day-name {
   margin-bottom: 10px;
   font-weight: bold;
 }
+
 .table-schedule {
   border-collapse: collapse;
 }
+
 .table-schedule th,
 .table-schedule td {
   vertical-align: top;
   padding: 8px;
   border: 1px solid #dee2e6;
 }
+
 .table-schedule-hours {
   width: 120px;
   white-space: nowrap;
 }
+
 .warning {
   background-color: #fff3cd;
 }
+
 .remote-warning {
   color: #856404;
   background-color: #fff3cd;
@@ -149,11 +133,13 @@ const buildLink = (type, value) => {
   border-radius: 3px;
   display: inline-block;
 }
+
 .lesson-type {
   font-size: 0.85rem;
   color: #666;
   margin-top: 4px;
 }
+
 a {
   color: #007bff;
   text-decoration: underline;

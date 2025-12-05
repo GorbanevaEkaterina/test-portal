@@ -9,10 +9,7 @@
       </div>
       <p class="mt-2">Загрузка расписания...</p>
     </div>
-    <div
-      v-else-if="!schedule || !schedule.items || Object.keys(schedule.items).length === 0"
-      class="alert alert-info"
-    >
+    <div v-else-if="!schedule || !schedule.items || Object.keys(schedule.items).length === 0" class="alert alert-info">
       Нет данных для отображения
     </div>
     <div class="content" v-else>
@@ -41,48 +38,21 @@
       <div class="d-flex justify-content-between mb-3">
         <button class="btn btn-outline-primary btn-sm">Скачать файл календаря</button>
         <div>
-          <a
-            href="#"
-            class="text-decoration-none"
-            :class="{ 'text-muted': mode !== 'compact' }"
-            @click.prevent="setView('compact')"
-          >
+          <a href="#" class="text-decoration-none" :class="{ 'text-muted': mode !== 'compact' }"
+            @click.prevent="setView('compact')">
             Компактное
           </a>
           <span class="mx-1">/</span>
-          <a
-            href="#"
-            class="text-decoration-none"
-            :class="{ 'text-muted': mode !== 'full' }"
-            @click.prevent="setView('full')"
-          >
+          <a href="#" class="text-decoration-none" :class="{ 'text-muted': mode !== 'full' }"
+            @click.prevent="setView('full')">
             Полное
           </a>
         </div>
       </div>
-      
-      <!-- WeekNavigator для обоих режимов -->
-      <WeekNavigator
-        v-model:week-start="localWeekStart"
-        v-model:week-end="localWeekEnd"
-        :week-number="schedule.weekNumber"
-        :odd="schedule.odd"
-        :mode="mode"
-      />
-      
-      <!-- Передаём type и value в дочерние компоненты -->
-      <WeekSchedule 
-        v-if="mode === 'full'" 
-        :schedule="schedule" 
-        :type="type"
-        :value="value"
-      />
-      <CompactSchedule 
-        v-else 
-        :schedule="schedule" 
-        :type="type"
-        :value="value"
-      />
+      <WeekNavigator v-model:week-start="localWeekStart" v-model:week-end="localWeekEnd"
+        :week-number="schedule.weekNumber" :odd="schedule.odd" :mode="mode" />
+      <WeekSchedule v-if="mode === 'full'" :schedule="schedule" :type="type" :value="value" />
+      <CompactSchedule v-else :schedule="schedule" :type="type" :value="value" />
     </div>
   </div>
 </template>
@@ -102,8 +72,8 @@ const props = defineProps({
   mode: { type: String, default: "full", validator: v => ["full", "compact"].includes(v) }
 });
 
-// Используем переданный mode или из localStorage
-const mode = ref( localStorage.getItem("scheduleType") || "full");
+
+const mode = ref(localStorage.getItem("scheduleType") || "full");
 
 const localWeekStart = ref(props.dateStart || "");
 const localWeekEnd = ref(props.dateEnd || "");
@@ -111,76 +81,52 @@ const localWeekEnd = ref(props.dateEnd || "");
 const { fetchList, schedule, loading, error } = useScheduleList();
 
 const loadSchedule = async () => {
-  console.log('loadSchedule called with:', {
-    type: props.type,
-    value: props.value,
-    mode: mode.value,
-    dateStart: localWeekStart.value,
-    dateEnd: localWeekEnd.value
-  });
-  
   const params = {
     type: props.type,
     value: props.value,
     mode: mode.value
   };
-  
-  // Добавляем даты только если они есть
+
+
   if (localWeekStart.value) {
     params.dateStart = localWeekStart.value;
   }
-  
+
   if (localWeekEnd.value) {
     params.dateEnd = localWeekEnd.value;
   }
-  
-  console.log('Fetching with params:', params);
+
   await fetchList(params);
 };
 
-// При монтировании компонента загружаем расписание
+
 onMounted(() => {
-  console.log('Component mounted, loading schedule...');
   loadSchedule();
 });
 
-// Следим за изменениями дат в WeekNavigator
+
 watch([localWeekStart, localWeekEnd], () => {
-  console.log('Dates changed, reloading schedule...');
-  console.log('localWeekStart:', localWeekStart.value);
-  console.log('localWeekEnd:', localWeekEnd.value);
   loadSchedule();
 }, { deep: true });
 
-// Обновляем schedule при изменении mode
+
 watch(mode, (newMode, oldMode) => {
-  console.log(`Mode changed from ${oldMode} to ${newMode}`);
-  
-  // Сохраняем режим в localStorage
   localStorage.setItem("scheduleType", newMode);
-  
-  // Ждём следующего тика, чтобы WeekNavigator успел обновиться
+
+
   nextTick(() => {
-    // WeekNavigator сам обновит даты при изменении режима
-    // и вызовет watch для localWeekStart/localWeekEnd,
-    // который запустит loadSchedule
     console.log('Mode change processed, waiting for date updates...');
   });
 });
 
-// Если schedule загружен, синхронизируем даты
+
 watch(() => schedule.value, (newSchedule) => {
   if (newSchedule && newSchedule.week_start && newSchedule.week_end) {
-    console.log('Schedule loaded, updating dates:', {
-      week_start: newSchedule.week_start,
-      week_end: newSchedule.week_end
-    });
-    
-    // Обновляем только если даты изменились
+
     if (localWeekStart.value !== newSchedule.week_start) {
       localWeekStart.value = newSchedule.week_start;
     }
-    
+
     if (localWeekEnd.value !== newSchedule.week_end) {
       localWeekEnd.value = newSchedule.week_end;
     }
@@ -188,11 +134,9 @@ watch(() => schedule.value, (newSchedule) => {
 }, { deep: true });
 
 const setView = (view) => {
-  console.log('Setting view to:', view);
   mode.value = view;
 };
 
-// Вспомогательная функция для парсинга дат
 const parseDate = (str) => {
   if (!str || typeof str !== 'string') return null;
   const parts = str.split('.');

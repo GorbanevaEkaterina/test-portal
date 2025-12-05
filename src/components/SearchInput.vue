@@ -1,11 +1,6 @@
 <template>
   <div class="input-group">
-    <input
-      v-model="localQuery"
-      type="text"
-      class="form-control"
-      placeholder="Введите строку поиска..."
-    />
+    <input v-model="localQuery" type="text" class="form-control" placeholder="Введите строку поиска..." />
     <button @click="onSearch" class="btn btn-outline-secondary">Найти</button>
   </div>
 </template>

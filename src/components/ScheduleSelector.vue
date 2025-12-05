@@ -1,131 +1,78 @@
 <template>
   <div class="content">
-  <div v-if="error" class="alert alert-danger">{{ error }}</div>
-  <div v-else class="wrapper">
-    <div class="row">
-      <div class="col">
-        <div class="label-btn">
-          <h3>Расписание</h3>
-          <div class="display-icon-link text-right" style="margin-bottom: 8px">
-            <a
-              href="/psuti/schedule-open/classrooms"
-              class="icon-link btn btn-outline-secondary local-t"
-              style="margin-top: 0; width: 65px"
-            >
-              <span class="fa fa-users fa-lg" aria-hidden="true"></span>
-            </a>
+    <div v-if="error" class="alert alert-danger">{{ error }}</div>
+    <div v-else class="wrapper">
+      <div class="row">
+        <div class="col">
+          <div class="label-btn">
+            <h3>Расписание</h3>
+            <div class="display-icon-link text-right" style="margin-bottom: 8px">
+              <a href="/psuti/schedule-open/classrooms" class="icon-link btn btn-outline-secondary local-t"
+                style="margin-top: 0; width: 65px">
+                <span class="fa fa-users fa-lg" aria-hidden="true"></span>
+              </a>
+            </div>
           </div>
+          <label for="schedule-type-select">Выберите расписание для отображения:</label>
         </div>
-        <label for="schedule-type-select"
-          >Выберите расписание для отображения:</label
-        >
+        <div class="col display-link-class text-right">
+          <a href="/psuti/schedule-open/classrooms">
+            <h5>Занятость аудиторий</h5>
+          </a>
+        </div>
       </div>
-      <div class="col display-link-class text-right">
-        <a href="/psuti/schedule-open/classrooms">
-          <h5>Занятость аудиторий</h5>
-        </a>
-      </div>
-    </div>
-
-    <div class="row" style="margin-top: 10px">
-      <div class="col-lg-4 select-container">
-        <select
-          v-model="currentSelect"
-          class="form-control local-t"
-          id="schedule-type-select"
-        >
-          <option value="">Выберите тип расписания</option>
-          <option value="Groups">По факультетам</option>
-          <option value="Teachers">По кафедрам</option>
-          <option value="GroupSearch">Поиск по названию группы</option>
-          <option value="TeachersSearch">Поиск по ФИО преподавателя</option>
-          <option value="Combine">Совмещённое расписание</option>
-        </select>
-      </div>
-
-      <div v-if="currentSelect === 'Groups'" class="col-lg-4">
-        <FacultySelector
-          v-model:faculty="currentSelectFaculty"
-          :faculties="faculties"
-        />
-      </div>
-
-      <div v-if="currentSelect === 'Teachers'" class="col-lg-4">
-        <DepartmentSelector
-          v-model:department="currentSelectDepartment"
-          :departments="departments"
-        />
-      </div>
-
-      <div
-        v-if="['GroupSearch', 'TeachersSearch'].includes(currentSelect)"
-        class="top col-lg-4"
-      >
-        <SearchInput
-          v-model:query="currentSearchQuery"
-          @search="currentSearchFinal = $event"
-        />
-      </div>
-
-      <div v-if="currentSelect === 'Combine'" class="col-lg-4">
-        <CombineScheduleButton />
-      </div>
-    </div>
-
-    <div id="tree_stage" class="treeview" style="user-select: none">
-      <div class="list-group">
-        <GroupList
-          v-if="currentSelect === 'Groups' && currentSelectFaculty"
-          :groups="filteredGroups"
-          :has-extramural="hasExtramural"
-        />
-
-        <TeacherList
-          v-if="currentSelect === 'Teachers' && currentSelectDepartment"
-          :teachers="filteredTeachers"
-          :department="currentSelectDepartment"
-        />
-
-        <div
-          v-if="currentSelect === 'GroupSearch'"
-          class="row"
-          style="padding: 25px 15px 15px"
-        >
-          <div
-            v-for="group in groups"
-            v-show="matchSearch(group)"
-            :key="group"
-            class="col-6 col-xl-3 col-lg-3 col-md-4 local-list-item-a"
-            @click="goToSchedule('group', group)"
-            style="cursor: pointer"
-          >
-            <span class="list-group-item node-tree_stage local-list-item">{{
-              group
-            }}</span>
-          </div>
+      <div class="row" style="margin-top: 10px">
+        <div class="col-lg-4 select-container">
+          <select v-model="currentSelect" class="form-control local-t" id="schedule-type-select">
+            <option value="">Выберите тип расписания</option>
+            <option value="Groups">По факультетам</option>
+            <option value="Teachers">По кафедрам</option>
+            <option value="GroupSearch">Поиск по названию группы</option>
+            <option value="TeachersSearch">Поиск по ФИО преподавателя</option>
+            <option value="Combine">Совмещённое расписание</option>
+          </select>
         </div>
 
-        <div
-          v-if="currentSelect === 'TeachersSearch'"
-          class="row"
-          style="padding: 25px 15px 15px"
-        >
-          <div
-            v-for="teacher in teachers"
-            v-show="matchSearch(teacher)"
-            :key="teacher"
-            class="col-6 col-xl-3 col-lg-3 col-md-4 local-col-6-1"
-            @click="goToSchedule('teacher', teacher)"
-            style="cursor: pointer"
-          >
-            <span class="list-group-item node-tree_stage local-list-item">{{
-              teacher
-            }}</span>
+        <div v-if="currentSelect === 'Groups'" class="col-lg-4">
+          <FacultySelector v-model:faculty="currentSelectFaculty" :faculties="faculties" />
+        </div>
+        <div v-if="currentSelect === 'Teachers'" class="col-lg-4">
+          <DepartmentSelector v-model:department="currentSelectDepartment" :departments="departments" />
+        </div>
+        <div v-if="['GroupSearch', 'TeachersSearch'].includes(currentSelect)" class="top col-lg-4">
+          <SearchInput v-model:query="currentSearchQuery" @search="currentSearchFinal = $event" />
+        </div>
+        <div v-if="currentSelect === 'Combine'" class="col-lg-4">
+          <CombineScheduleButton />
+        </div>
+      </div>
+      <div id="tree_stage" class="treeview" style="user-select: none">
+        <div class="list-group">
+          <GroupList v-if="currentSelect === 'Groups' && currentSelectFaculty" :groups="filteredGroups"
+            :has-extramural="hasExtramural" />
+          <TeacherList v-if="currentSelect === 'Teachers' && currentSelectDepartment" :teachers="filteredTeachers"
+            :department="currentSelectDepartment" />
+          <div v-if="currentSelect === 'GroupSearch'" class="row" style="padding: 25px 15px 15px">
+            <div v-for="group in groups" v-show="matchSearch(group)" :key="group"
+              class="col-6 col-xl-3 col-lg-3 col-md-4 local-list-item-a" @click="goToSchedule('group', group)"
+              style="cursor: pointer">
+              <span class="list-group-item node-tree_stage local-list-item">{{
+                group
+                }}</span>
+            </div>
+          </div>
+          <div v-if="currentSelect === 'TeachersSearch'" class="row" style="padding: 25px 15px 15px">
+            <div v-for="teacher in teachers" v-show="matchSearch(teacher)" :key="teacher"
+              class="col-6 col-xl-3 col-lg-3 col-md-4 local-col-6-1" @click="goToSchedule('teacher', teacher)"
+              style="cursor: pointer">
+              <span class="list-group-item node-tree_stage local-list-item">{{
+                teacher
+                }}</span>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
   </div>
 </template>
 
