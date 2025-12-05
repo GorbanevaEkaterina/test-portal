@@ -15,17 +15,16 @@
     >
       Нет данных для отображения
     </div>
-    <div v-else>
+    <div class="content" v-else>
       <div class="schedule-header mb-4 p-3 border rounded bg-light">
-        <h3>
-          Расписание
-          <span v-if="type === 'group'">группы </span>
-          <span v-else-if="type === 'teacher'">преподавателя</span>
-          <span v-else-if="type === 'classroom'">аудитории</span>
+        <h3>Расписание
+          <span v-if="type === 'group'">группы&nbsp; </span>
+          <span v-else-if="type === 'teacher'">преподавателя&nbsp;</span>
+          <span v-else-if="type === 'classroom'">аудитории&nbsp;</span>
           <b>{{ value }}</b>
         </h3>
         <p class="mb-1">
-          Неделя № <b>{{ schedule.weekNumber }}</b>
+          Неделя № <b>{{ schedule.weekNumber }}&nbsp;</b>
           <span v-if="schedule.odd === 1" class="text-info">(Нечётная)</span>
           <span v-if="schedule.odd === 2" class="text-success">(Чётная)</span>
         </p>

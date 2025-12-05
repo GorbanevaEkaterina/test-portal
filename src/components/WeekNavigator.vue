@@ -4,7 +4,7 @@
       <div class="btn-group" role="group">
         <button
           @click="switchWeek(false)"
-          class="btn btn-outline-secondary"
+          class="btn btn-outline-secondary btn-sm"
           :title="prevButtonTitle"
           type="button"
         >
@@ -30,7 +30,7 @@
           </div>
 
           <div class="input-group" v-if="mode">
-            <Datepicker
+            <Datepicker 
               v-model="internalEndDate"
               :enable-time="false"
               :locale="ru"
@@ -49,7 +49,7 @@
         </div>
         <button
           @click="switchWeek(true)"
-          class="btn btn-outline-secondary"
+          class="btn btn-outline-secondary btn-sm"
           :title="nextButtonTitle"
           type="button"
         >
@@ -342,10 +342,12 @@ watch(() => props.mode, (newMode, oldMode) => {
   background-color: #f8f9fa;
 }
 
+
 .input-group {
   display: flex;
   align-items: stretch;
   width: auto;
+  
 }
 
 .input-group .form-control {

@@ -65,14 +65,14 @@
                 <span v-else>—</span>
               </td>
               <td class="table-schedule-group">
-                <span v-if="lesson.course">{{ lesson.course }} курс</span>
+                <span v-if="lesson.course">{{ lesson.course }} курс <br></span>
                 <a
                   v-for="(group, idx) in lesson.group"
                   :key="idx"
                   :href="buildLink('group', group)"
                 >
                   {{ group }}
-                  <span v-if="idx < lesson.group.length - 1">,</span>
+                  <span v-if="idx < lesson.group.length - 1">,<br></span>
                 </a>
               </td>
               <td class="table-schedule-teacher">

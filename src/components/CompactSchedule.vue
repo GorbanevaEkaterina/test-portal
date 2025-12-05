@@ -103,7 +103,7 @@ const renderLesson = (lesson) => {
   if (!lesson || !lesson.discipline?.length) return '—'
 
   let html = lesson.discipline.join(', ')
-  if (lesson.load) html += ` <small>(${lesson.load})</small>`
+  if (lesson.load) html += ` <small>${lesson.load}</small>`
 
   if (lesson.teacher?.length) {
     const links = lesson.teacher.map(t =>

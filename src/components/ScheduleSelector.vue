@@ -1,4 +1,5 @@
 <template>
+  <div class="content">
   <div v-if="error" class="alert alert-danger">{{ error }}</div>
   <div v-else class="wrapper">
     <div class="row">
@@ -58,7 +59,7 @@
 
       <div
         v-if="['GroupSearch', 'TeachersSearch'].includes(currentSelect)"
-        class="col-lg-4"
+        class="top col-lg-4"
       >
         <SearchInput
           v-model:query="currentSearchQuery"
@@ -124,6 +125,7 @@
         </div>
       </div>
     </div>
+  </div>
   </div>
 </template>
 
@@ -205,3 +207,8 @@ watch(currentSelect, (val) => {
   }
 });
 </script>
+<style scoped>
+.top {
+  margin-top: 15px;
+}
+</style>
