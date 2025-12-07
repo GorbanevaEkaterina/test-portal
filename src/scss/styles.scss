@@ -114,7 +114,9 @@ a {
 .icon-link {
   height: auto;
   width: 56px;
-  z-index: 666;
+  height: 38px;
+  z-index: 50;
+  justify-content: center;
 }
 .label-btn {
   display: flex;
