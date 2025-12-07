@@ -1,10 +1,9 @@
 
-
-
 import { createRouter, createWebHistory } from 'vue-router'
 import ScheduleSelector from '../components/ScheduleSelector.vue'
 import ScheduleView from '../components/ScheduleView.vue'
 import ScheduleCombine from '../components/ScheduleCombine.vue'
+import ScheduleList from '../components/ScheduleList.vue'
 
 const routes = [
   { path: '/', component: ScheduleSelector },
@@ -28,7 +27,6 @@ const routes = [
       type: route.query.type,
       value: route.query.value,
       dateStart: route.query.dateStart,
-      // dateEnd не используется в api-compact
       mode: 'compact'
     })
   },
@@ -37,14 +35,18 @@ const routes = [
     name: 'ScheduleCombine',
     component: ScheduleCombine,
     props: (route) => ({
-      // ScheduleCombine не требует type/value по умолчанию,
-      // он сам позволяет их выбирать
       dateStart: route.query.dateStart,
       dateEnd: route.query.dateEnd
     })
+  },
+  {
+    path: '/psuti/schedule-open/api-list',
+    name: 'ScheduleList',
+    component: ScheduleList,
+    props: (route) => ({})
   }
 ]
-// console.log("route.query.dateStart: ", route.query.dateStart);
+
 const router = createRouter({
   history: createWebHistory(),
   routes

@@ -85,11 +85,11 @@ const isPhysicalCulture = (lesson) => {
   );
 };
 
+
 const buildLink = (type, value) => {
-  return `/psuti/schedule-open/list?type=${type}&value=${encodeURIComponent(
-    value
-  )}&dateStart=${props.schedule.week_start}&dateEnd=${props.schedule.week_end}`;
-};
+  return `/psuti/schedule-open/api-list?type=${type}&value=${encodeURIComponent(value)}&dateStart=${props.schedule.week_start}&dateEnd=${props.schedule.week_end}`
+}
+
 </script>
 
 <style scoped>
